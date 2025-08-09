@@ -1,8 +1,9 @@
-Claro! Aqui está a tradução para português brasileiro do seu README:
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://https://github.com/GiovBerlato/inventory_management_system/edit/main/README.md)
+[![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/GiovBerlato/inventory_management_system/edit/main/README.pt-br.md)
 
 ---
 
-# API do Sistema de Gestão de Estoque
+# API de Sistema de Gestão de Estoque
 
 Um IMS desenvolvido em Java com o framework Spring Boot, utilizando PostgreSQL. Esta ferramenta ajuda a gerenciar o estoque de armazéns, permitindo que o usuário adicione diferentes tipos de produtos e respectivas entradas de estoque para esses produtos em qualquer armazém.
 
