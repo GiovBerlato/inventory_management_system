@@ -1,6 +1,6 @@
 # Inventory Management System API
 
-An IMS written with Java and the Spring Boot framework. This tool that helps with managing the inventory of warehouses, with the user being able to add different kinds of products and respective stock entries for those products in any warehouse.
+An IMS written with Java and the Spring Boot framework, with data being stored in PostgreSQL. This tool helps with managing the inventory of warehouses, with the user being able to add different kinds of products and respective stock entries for those products in any warehouse.
 
 ## Installation
 
