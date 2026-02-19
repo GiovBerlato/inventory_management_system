@@ -2,9 +2,13 @@ package io.github.giovberlato.inventory_management_system.contract;
 
 import io.github.giovberlato.inventory_management_system.model.StockEntry;
 import io.github.giovberlato.inventory_management_system.model.Warehouse;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class WarehouseResponseDTO {
     private String name;
     private String location;

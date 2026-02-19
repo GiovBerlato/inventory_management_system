@@ -43,7 +43,6 @@ public class Product {
         @DecimalMin("0.00")
         private BigDecimal price;
         @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-        @JsonManagedReference
         private List<StockEntry> stockEntries;
         @NotNull
         @Min(0)
@@ -52,7 +51,6 @@ public class Product {
         @ManyToOne
         @JoinColumn(name = "supplier_id")
         @NotNull
-        @JsonBackReference
         private Supplier supplier;
 
         // Constructor used in unit testing

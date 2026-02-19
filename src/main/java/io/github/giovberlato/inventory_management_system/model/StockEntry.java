@@ -24,7 +24,6 @@ public class StockEntry {
         @NotNull
         @ManyToOne(optional = false)
         @JoinColumn(name = "product_id", nullable = false)
-        @JsonBackReference
         private Product product; // product can have many stock entries
         @ManyToOne(optional = false)
         @JoinColumn(name = "warehouse_id", nullable = false)

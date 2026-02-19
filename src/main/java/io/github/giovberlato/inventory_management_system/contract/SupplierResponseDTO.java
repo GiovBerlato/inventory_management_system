@@ -4,9 +4,13 @@ package io.github.giovberlato.inventory_management_system.contract;
 import io.github.giovberlato.inventory_management_system.model.Supplier;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
 public class SupplierResponseDTO {
     @NotBlank
     private String name;
