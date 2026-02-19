@@ -13,5 +13,5 @@ public class StockEntryAdjustmentDTO {
     @NotNull
     private String warehouseName;
     @NotNull
-    private int quantityToAdjust;
+    private Integer quantityToAdjust;
 }

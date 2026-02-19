@@ -12,14 +12,10 @@ import java.util.List;
 @Getter
 @Setter
 public class SupplierResponseDTO {
-    @NotBlank
     private String name;
-    @NotBlank
     private String address;
-    @NotBlank
     private String contactNumber;
     private String email;
-    @NotNull
     private List<ProductResponseDTO> products;
 
     public SupplierResponseDTO(Supplier supplier) {

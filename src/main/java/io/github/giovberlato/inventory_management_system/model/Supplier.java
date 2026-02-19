@@ -18,7 +18,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @EqualsAndHashCode(exclude = {"id"})
-@JsonIgnoreProperties("products")
 public class Supplier {
     @Id
     @GeneratedValue

@@ -23,7 +23,6 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(exclude = {"id", "stockEntries"})
 @NoArgsConstructor
-@JsonIgnoreProperties({"stockEntries"})
 public class Product {
         @Id
         @GeneratedValue
