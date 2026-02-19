@@ -1,5 +1,6 @@
 package io.github.giovberlato.inventory_management_system.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.github.giovberlato.inventory_management_system.model.product.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -12,7 +13,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
-@Table(name = "StockEntries")
+@Table(name = "stock_entries")
 public class StockEntry {
         @Id
         @GeneratedValue
@@ -23,6 +24,7 @@ public class StockEntry {
         @NotNull
         @ManyToOne(optional = false)
         @JoinColumn(name = "product_id", nullable = false)
+        @JsonBackReference
         private Product product; // product can have many stock entries
         @ManyToOne(optional = false)
         @JoinColumn(name = "warehouse_id", nullable = false)

@@ -1,7 +1,8 @@
 package io.github.giovberlato.inventory_management_system.controller;
 
-import io.github.giovberlato.inventory_management_system.contract.StockEntryPostRequestDTO;
-import io.github.giovberlato.inventory_management_system.contract.StockEntryUpdateResponseDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryAdjustmentDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryRequestDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryResponseDTO;
 import io.github.giovberlato.inventory_management_system.model.StockEntry;
 import io.github.giovberlato.inventory_management_system.service.StockEntryService;
 import jakarta.validation.Valid;
@@ -22,37 +23,37 @@ public class StockEntryController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/warehouse") // get all stock entries inside a specific warehouse
-    public List<StockEntry> listAllStocksInWarehouse(@RequestParam UUID id) {
-        return stockEntryService.listAllStocksInWarehouse(id);
+    public List<StockEntryResponseDTO> listAllStocksInWarehouse(@RequestParam String name) {
+        return stockEntryService.listAllStocksInWarehouse(name);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/products") // get all stock entries for a specific product
-    public List<StockEntry> listAllStocksForProduct(@RequestParam UUID id) {
-        return stockEntryService.listAllStocksForProduct(id);
+    public List<StockEntryResponseDTO> listAllStocksForProduct(@RequestParam String sku) {
+        return stockEntryService.listAllStocksForProduct(sku);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{warehouseId}/{productId}") // get a stock entry for a specific product in a specific warehouse
-    public StockEntry getStockForProductInWarehouse(@PathVariable UUID warehouseId, @PathVariable UUID productId) {
-        return stockEntryService.getStockForProductInWarehouse(warehouseId, productId);
+    @GetMapping("/{warehouseName}/{productSKU}") // get a stock entry for a specific product in a specific warehouse
+    public StockEntryResponseDTO getStockForProductInWarehouse(@PathVariable String warehouseName, @PathVariable String productSKU) {
+        return stockEntryService.getStockForProductInWarehouse(warehouseName, productSKU);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("") // requires an existing Product and Warehouse
-    public StockEntry addStockEntry(@Valid @RequestBody StockEntryPostRequestDTO stockEntryRequest) {
-        return stockEntryService.addStockEntry(stockEntryRequest);
+    public void addStockEntry(@Valid @RequestBody StockEntryRequestDTO stockEntryRequest) {
+        stockEntryService.addStockEntry(stockEntryRequest);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{stockEntryId}")
-    public void deleteStockEntry(@Valid @RequestBody UUID id) {
-        stockEntryService.deleteStockEntry(id);
+    @DeleteMapping("/{warehouseName}/{productSKU}")
+    public void deleteStockEntry(@Valid @PathVariable String productSKU, @Valid @PathVariable String warehouseName) {
+        stockEntryService.deleteStockEntry(warehouseName, productSKU);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @PatchMapping("/{stockEntryId}") // adjust the stock quantity, negative integer to decrease, positive to increase.
-    public StockEntryUpdateResponseDTO adjustStock(@Valid @PathVariable UUID stockEntryId, @Valid @RequestParam Integer quantity) {
-        return stockEntryService.adjustStock(stockEntryId, quantity);
+    @PatchMapping("") // adjust the stock quantity, negative integer to decrease, positive to increase.
+    public StockEntryResponseDTO adjustStock(@RequestBody StockEntryAdjustmentDTO request) {
+        return stockEntryService.adjustStock(request);
     }
 }

@@ -59,4 +59,20 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<String> handleInsufficientStockException(InsufficientStockException ex) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(ex.getMessage());
+    }
+
+    // SUPPLIER EXCEPTIONS
+
+    @ExceptionHandler(SupplierNotFoundException.class)
+    public ResponseEntity<Object> handleSupplierNotFoundException(SupplierNotFoundException ex) {
+        return ResponseEntity
+                .status((HttpStatus.NOT_FOUND))
+                .body(ex.getMessage());
+    }
 }

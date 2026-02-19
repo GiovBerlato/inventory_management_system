@@ -12,6 +12,8 @@ You can build and run the program locally using the maven wrapper that is provid
 ```bash
 ./mvnw clean package
 ```
+Make sure you have the database up before packaging, or it will error out on the integration tests. (Alternatively you can build without running tests, using the "-Dskiptests" Maven flag)
+
 Then, just run the .jar inside the target folder.
 
 Alternatively, you can install [Docker](https://www.docker.com/) (Pre-made Dockerfile and compose.yaml files are also provided with this project), and run the application inside a container, using the compose command on the root folder:
