@@ -1,9 +1,11 @@
 package io.github.giovberlato.inventory_management_system.controller;
 
 import io.github.giovberlato.inventory_management_system.contract.ProductResponseDTO;
+import io.github.giovberlato.inventory_management_system.contract.SupplierRequestDTO;
 import io.github.giovberlato.inventory_management_system.contract.SupplierResponseDTO;
 import io.github.giovberlato.inventory_management_system.service.SupplierService;
 import jakarta.validation.Valid;
+import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,8 +27,20 @@ public class SupplierController {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @GetMapping("/{name}/products")
+    @GetMapping("/{name}")
     public List<ProductResponseDTO> listAllProductsBySupplier(@Valid @PathVariable String name) {
         return supplierService.listAllProductsBySupplier(name);
+    }
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("")
+    public void addSupplier(@Valid @RequestBody SupplierRequestDTO supplier) {
+        supplierService.addSupplier(supplier);
+    }
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{name}")
+    public void deleteSupplier(@Valid @PathVariable String name) {
+        supplierService.deleteSupplier(name);
     }
 }

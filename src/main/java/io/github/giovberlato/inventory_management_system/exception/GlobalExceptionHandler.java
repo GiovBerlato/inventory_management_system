@@ -75,4 +75,11 @@ public class GlobalExceptionHandler {
                 .status((HttpStatus.NOT_FOUND))
                 .body(ex.getMessage());
     }
+
+    @ExceptionHandler(DuplicateSupplierException.class)
+    public ResponseEntity<Object> handleDuplicateSupplierException(DuplicateSupplierException ex) {
+        return ResponseEntity
+                .status((HttpStatus.BAD_REQUEST))
+                .body(ex.getMessage());
+    }
 }

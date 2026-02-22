@@ -42,7 +42,7 @@ public class Product {
         @DecimalMin("0.00")
         private BigDecimal price;
         @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<StockEntry> stockEntries;
+        private List<StockEntry> stockEntries = new ArrayList<>();
         @NotNull
         @Min(0)
         @Column(name = "min_stock")
@@ -55,7 +55,6 @@ public class Product {
         // Constructor used in unit testing
         public Product(String name, String sku, ProductType type, Integer minimumStock, Supplier supplier) {
                 this.minimumStock = minimumStock;
-                this.stockEntries = new ArrayList<>();
                 this.price = new BigDecimal("10.89");
                 this.sku = sku;
                 this.type = type;

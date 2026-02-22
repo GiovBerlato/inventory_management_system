@@ -3,10 +3,13 @@ package io.github.giovberlato.inventory_management_system;
 import io.github.giovberlato.inventory_management_system.contract.ProductRequestDTO;
 import io.github.giovberlato.inventory_management_system.contract.ProductResponseDTO;
 import io.github.giovberlato.inventory_management_system.exception.ProductNotFoundException;
+import io.github.giovberlato.inventory_management_system.model.Supplier;
 import io.github.giovberlato.inventory_management_system.model.product.Product;
 import io.github.giovberlato.inventory_management_system.model.product.ProductType;
 import io.github.giovberlato.inventory_management_system.repository.ProductRepository;
+import io.github.giovberlato.inventory_management_system.repository.SupplierRepository;
 import io.github.giovberlato.inventory_management_system.service.ProductService;
+import io.github.giovberlato.inventory_management_system.service.SupplierService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,53 +24,65 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 public class ProductServiceTests {
 
-//    @Autowired
-//    ProductRepository productRepository;
-//
-//    @Autowired
-//    ProductService productService;
+    @Autowired
+    ProductRepository productRepository;
 
-//    @BeforeEach
-//    void setup() {
-//        productRepository.deleteAll();
-//        Product product = new Product("MockProduct", "abcd-1234", ProductType.ELECTRONICS, 1000);
-//        productRepository.save(product);
-//    }
-//
-//    @Test
-//    void searchBySku_ShouldReturnProduct_IfSkuExists() {
-//        String sku = "ABCD-1234";
-//
-//        ProductResponseDTO testSearchResult = productService.searchBySku(sku);
-//
-//        assertNotNull(testSearchResult);
-//        assertEquals(sku, testSearchResult.getSku());
-//    }
-//
-//    @Test
-//    void searchBySku_ShouldThrowException_IfSkuDoesntExist() {
-//        String sku = "FAKE-SKU";
-//
-//        assertThrowsExactly(ProductNotFoundException.class,
-//                () -> productService.searchBySku(sku));
-//    }
-//
-//    @Test
-//    void updateProduct_ShouldUpdateProduct_IfSkuExists() {
-//        ProductRequestDTO updatedProduct = new ProductRequestDTO("UpdatedProduct", "abcd-1234", ProductType.ELECTRONICS, BigDecimal.valueOf(500.00));
-//
-//        ProductResponseDTO testUpdateResult = productService.updateProduct(updatedProduct, "abcd-1234");
-//
-//        assertEquals(testUpdateResult, updatedProduct);
-//    }
-//
-//    @Test
-//    void deleteProduct_ShouldDeleteProduct_IfSkuExists() {
-//        String sku = "ABCD-1234";
-//
-//        productService.deleteProduct(sku);
-//
-//        assertThrowsExactly(ProductNotFoundException.class,
-//                () -> productService.searchBySku(sku));
-//    }
+    @Autowired
+    ProductService productService;
+
+    @Autowired
+    SupplierRepository supplierRepository;
+
+    @Autowired
+    SupplierService supplierService;
+
+    @BeforeEach
+    void setup() {
+        productRepository.deleteAll();
+        Supplier supplier = new Supplier("MockSupplier", "Alberto Street, 999", "example@example.com", "123456789");
+        supplierService.
+        Product product = new Product("MockProduct", "abcd-1234", ProductType.ELECTRONICS, 1000, supplier);
+        productRepository.save(product);
+    }
+
+    @Test
+    void searchBySku_ShouldReturnProduct_IfSkuExists() {
+        String sku = "ABCD-1234";
+
+        ProductResponseDTO testSearchResult = productService.searchBySku(sku);
+
+        assertNotNull(testSearchResult);
+        assertEquals(sku, testSearchResult.getSku());
+    }
+
+    @Test
+    void searchBySku_ShouldThrowException_IfSkuDoesntExist() {
+        String sku = "FAKE-SKU";
+
+        assertThrowsExactly(ProductNotFoundException.class,
+                () -> productService.searchBySku(sku));
+    }
+
+    @Test
+    void updateProduct_ShouldUpdateProduct_IfSkuExists() {
+        ProductRequestDTO updatedProduct = new ProductRequestDTO(
+                "UpdatedProduct", "abcd-1234", ProductType.ELECTRONICS, BigDecimal.valueOf(500.00), 4567, "MockSupplier");
+
+        productService.updateProduct(updatedProduct, "abcd-1234");
+
+        ProductResponseDTO testUpdateResult = productService.searchBySku("abcd-1234");
+        assertEquals(testUpdateResult.getName(), updatedProduct.getName());
+        assertEquals(testUpdateResult.getPrice(), updatedProduct.getPrice());
+        assertEquals(testUpdateResult.getMinimumStock(), updatedProduct.getMinimumStock());
+    }
+
+    @Test
+    void deleteProduct_ShouldDeleteProduct_IfSkuExists() {
+        String sku = "ABCD-1234";
+
+        productService.deleteProduct(sku);
+
+        assertThrowsExactly(ProductNotFoundException.class,
+                () -> productService.searchBySku(sku));
+    }
 }

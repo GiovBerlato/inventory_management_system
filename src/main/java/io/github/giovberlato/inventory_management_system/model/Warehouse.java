@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class Warehouse {
         @Min(0)
         private Integer currentQuantity = 0;
         @OneToMany(mappedBy = "warehouse", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<StockEntry> stockEntries;
+        private List<StockEntry> stockEntries = new ArrayList<>();
 
 
 

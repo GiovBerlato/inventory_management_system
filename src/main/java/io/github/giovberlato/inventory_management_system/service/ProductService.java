@@ -104,7 +104,7 @@ public class ProductService {
     }
 
 
-    public Product dtoToProduct(ProductRequestDTO dto, Supplier productSupplier) {
+    private Product dtoToProduct(ProductRequestDTO dto, Supplier productSupplier) {
         return new Product(dto.getName(),
                 dto.getSku(),
                 dto.getType(),
