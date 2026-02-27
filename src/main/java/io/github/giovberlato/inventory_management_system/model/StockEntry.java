@@ -1,6 +1,5 @@
 package io.github.giovberlato.inventory_management_system.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import io.github.giovberlato.inventory_management_system.model.product.Product;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -31,4 +30,12 @@ public class StockEntry {
         @NotNull
         @Min(0)
         private Integer quantity;
+
+
+
+        public StockEntry(Product product, Warehouse warehouse, Integer quantity) {
+                this.product = product;
+                this.warehouse = warehouse;
+                this.quantity = quantity;
+        }
 }

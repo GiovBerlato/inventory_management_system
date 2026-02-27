@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class StockEntryService {
@@ -119,6 +118,6 @@ public class StockEntryService {
             message = "Update Successful. (WARNING: Stock below specified minimum threshold.)";
         }
 
-        return new StockEntryResponseDTO(message, product, warehouse);
+        return new StockEntryResponseDTO(message, product, warehouse, updatedStock);
     }
 }

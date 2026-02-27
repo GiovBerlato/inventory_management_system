@@ -1,8 +1,5 @@
 package io.github.giovberlato.inventory_management_system.model.product;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.github.giovberlato.inventory_management_system.model.StockEntry;
 
 import io.github.giovberlato.inventory_management_system.model.Supplier;
@@ -51,15 +48,6 @@ public class Product {
         @JoinColumn(name = "supplier_id")
         @NotNull
         private Supplier supplier;
-
-        // Constructor used in unit testing
-        public Product(String name, String sku, ProductType type, Integer minimumStock, Supplier supplier) {
-                this.minimumStock = minimumStock;
-                this.price = new BigDecimal("10.89");
-                this.sku = sku;
-                this.type = type;
-                this.name = name;
-        }
 
         public Product(String name, String sku, ProductType type, BigDecimal price, Integer minimumStock, Supplier supplier) {
                 this.name = name;

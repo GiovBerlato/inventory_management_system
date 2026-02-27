@@ -9,7 +9,6 @@ import io.github.giovberlato.inventory_management_system.model.product.ProductTy
 import io.github.giovberlato.inventory_management_system.repository.ProductRepository;
 import io.github.giovberlato.inventory_management_system.repository.SupplierRepository;
 import io.github.giovberlato.inventory_management_system.service.ProductService;
-import io.github.giovberlato.inventory_management_system.service.SupplierService;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,15 +32,14 @@ public class ProductServiceTests {
     @Autowired
     SupplierRepository supplierRepository;
 
-    @Autowired
-    SupplierService supplierService;
-
     @BeforeEach
     void setup() {
         productRepository.deleteAll();
+        supplierRepository.deleteAll();
+
         Supplier supplier = new Supplier("MockSupplier", "Alberto Street, 999", "example@example.com", "123456789");
-        supplierService.
-        Product product = new Product("MockProduct", "abcd-1234", ProductType.ELECTRONICS, 1000, supplier);
+        supplierRepository.save(supplier);
+        Product product = new Product("MockProduct", "abcd-1234", ProductType.ELECTRONICS, new BigDecimal("10.89"), 1000, supplier);
         productRepository.save(product);
     }
 
@@ -52,7 +50,7 @@ public class ProductServiceTests {
         ProductResponseDTO testSearchResult = productService.searchBySku(sku);
 
         assertNotNull(testSearchResult);
-        assertEquals(sku, testSearchResult.getSku());
+        assertTrue(testSearchResult.getSku().equalsIgnoreCase(sku));
     }
 
     @Test

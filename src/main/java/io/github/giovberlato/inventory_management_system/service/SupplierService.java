@@ -7,7 +7,6 @@ import io.github.giovberlato.inventory_management_system.exception.DuplicateSupp
 import io.github.giovberlato.inventory_management_system.exception.SupplierNotFoundException;
 import io.github.giovberlato.inventory_management_system.model.Supplier;
 import io.github.giovberlato.inventory_management_system.repository.SupplierRepository;
-import org.apache.logging.log4j.util.InternalApi;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,13 +35,6 @@ public class SupplierService {
                         .toList();
     }
 
-    private Supplier dtoToSupplier(SupplierRequestDTO dto) {
-        return new Supplier(dto.getName(),
-                dto.getAddress(),
-                dto.getContactNumber(),
-                dto.getEmail());
-    }
-
     @Transactional
     public SupplierResponseDTO addSupplier(SupplierRequestDTO request) {
         if (supplierRepository.findByNameIgnoreCase(request.getName()).isPresent()) {
@@ -57,5 +49,12 @@ public class SupplierService {
         Supplier supplier = supplierRepository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new SupplierNotFoundException("No supplier with this name exists."));
         supplierRepository.delete(supplier);
+    }
+
+    private Supplier dtoToSupplier(SupplierRequestDTO dto) {
+        return new Supplier(dto.getName(),
+                dto.getAddress(),
+                dto.getContactNumber(),
+                dto.getEmail());
     }
 }

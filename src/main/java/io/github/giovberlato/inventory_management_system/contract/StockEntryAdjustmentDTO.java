@@ -7,6 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class StockEntryAdjustmentDTO {
     @NotNull
     private String productSKU;

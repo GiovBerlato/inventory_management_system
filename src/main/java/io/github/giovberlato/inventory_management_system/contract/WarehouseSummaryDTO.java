@@ -9,11 +9,13 @@ import lombok.Setter;
 public class WarehouseSummaryDTO {
     private String name;
     private String location;
-    private int maxCapacity;
+    private Integer maxCapacity;
+    private Integer currentQuantity;
 
     public WarehouseSummaryDTO(Warehouse warehouse) {
         this.name = warehouse.getName();
         this.location = warehouse.getLocation();
         this.maxCapacity = warehouse.getMaxCapacity();
+        this.currentQuantity = warehouse.getCurrentQuantity();
     }
 }
