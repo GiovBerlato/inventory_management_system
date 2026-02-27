@@ -15,7 +15,7 @@ Você pode compilar e executar o programa localmente usando o wrapper do maven q
 ./mvnw clean package
 ```
 
-E então, é só rodar o arquivo .jar que aparece na pasta target.
+Certifique-se de que o banco de dados está funcionando, e então, é só rodar o arquivo .jar que aparece na pasta target.
 
 Alternativamente, você pode instalar o [Docker](https://www.docker.com/) (os arquivos Dockerfile e compose.yaml já vem prontos com o projeto), e executar a aplicação dentro de um container, usando o comando compose no root do projeto:
 
@@ -27,49 +27,68 @@ docker compose up --build
 
 É possível acessar todas as funcionalidades usando requisições HTTP, aqui estão exemplos usando [curl](https://curl.se/download.html) (você também pode usar [Postman](https://www.postman.com/downloads/) ou [httpie](https://httpie.io/)):
 
+### Fornecedores
+```bash
+# Adicionar um novo fornecedor
+curl -X POST "http://localhost:8080/ims/supplier" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "name": "Sony Electronics",
+           "address": "Tokyo, Japan",
+           "contactNumber": "+81-3-6748-2111",
+           "email": "contact@sony.com"
+         }'
+
+# Buscar um fornecedor pelo nome exato
+curl -X GET "http://localhost:8080/ims/supplier?name=Sony Electronics"
+
+# Listar todos os produtos fornecidos por um fornecedor específico
+curl -X GET "http://localhost:8080/ims/supplier/Sony Electronics"
+
+# Deletar um fornecedor pelo nome (Aviso: apaga em cascata seus produtos/estoques)
+curl -X DELETE "http://localhost:8080/ims/supplier/Sony Electronics"
+```
 ### Produtos
 
 ```bash
-# Adicionar um produto
+# Adicionar um produto (Requer um Fornecedor existente)
 curl -X POST "http://localhost:8080/ims/products" \
      -H "Content-Type: application/json" \
      -d '{
-           "sku": "ABC-123",
-           "name": "Videogame",
+           "name": "PlayStation 5",
+           "sku": "SONY-PS5",
            "type": "ELECTRONICS",
-           "price": 299.99
+           "price": 499.99,
+           "minimumStock": 10,
+           "supplierName": "Sony Electronics"
          }'
 
-# Retornar todos os produtos cadastrados no banco
+# Retornar todos os produtos
 curl -X GET "http://localhost:8080/ims/products"
 
-# Buscar produtos cujo nome tenha uma palavra-chave específica
-curl -X GET "http://localhost:8080/ims/products/keyword-search?keyword={keyword}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/products/keyword-search?keyword=fork"
+# Buscar um produto pelo seu SKU exato
+curl -X GET "http://localhost:8080/ims/products/sku-search?sku=SONY-PS5"
 
-# Buscar um produto pelo seu SKU
-curl -X GET "http://localhost:8080/ims/products/sku-search?sku={sku}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/products/sku-search?sku=ABC-123"
+# Buscar produtos cujo nome contenha uma palavra-chave específica
+curl -X GET "http://localhost:8080/ims/products/keyword-search?keyword=PlayStation"
 
-# Listar produtos filtrados pelo tipo
-curl -X GET "http://localhost:8080/ims/products/filter/{type}"
-# Exemplo:
+# Listar produtos filtrados pelo seu tipo
 curl -X GET "http://localhost:8080/ims/products/filter/ELECTRONICS"
 
-# Atualizar o conteúdo de um produto existente (busca pelo SKU)
-curl -X PUT "http://localhost:8080/ims/products/ABC-123" \
+# Atualizar um produto existente (Busca pelo SKU, deve incluir todos os campos)
+curl -X PUT "http://localhost:8080/ims/products/SONY-PS5" \
      -H "Content-Type: application/json" \
      -d '{
-           "sku": "ABC-123",
-           "name": "Videogame Atualizado",
+           "name": "PlayStation 5 Pro",
+           "sku": "SONY-PS5",
            "type": "ELECTRONICS",
-           "price": 399.99
+           "price": 599.99,
+           "minimumStock": 5,
+           "supplierName": "Sony Electronics"
          }'
 
-# Deletar um produto (busca pelo SKU)
-curl -X DELETE "http://localhost:8080/ims/products/ABC-123"
+# Deletar um produto pelo SKU
+curl -X DELETE "http://localhost:8080/ims/products/SONY-PS5"
 ```
 
 ### Armazéns
@@ -79,78 +98,66 @@ curl -X DELETE "http://localhost:8080/ims/products/ABC-123"
 curl -X POST "http://localhost:8080/ims/warehouses" \
      -H "Content-Type: application/json" \
      -d '{
-           "id": "a43b5-342n-12hgs",
-           "name": "Armazém Central",
-           "location": "Rua Principal, 123",
-           "capacity": 1000
+           "name": "Central Warehouse",
+           "location": "123 Main St, New York",
+           "maxCapacity": 5000
          }'
 
 # Retornar todos os armazéns
 curl -X GET "http://localhost:8080/ims/warehouses"
 
 # Buscar um armazém pelo nome exato
-curl -X GET "http://localhost:8080/ims/warehouses/name-search?name={name}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/warehouses/name-search?name=Armazém Central"
+curl -X GET "http://localhost:8080/ims/warehouses/filter?name=Central Warehouse"
 
 # Buscar armazéns cujo nome contenha uma palavra-chave específica
-curl -X GET "http://localhost:8080/ims/warehouses/keyword-search?keyword={keyword}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/warehouses/keyword-search?keyword=central"
+curl -X GET "http://localhost:8080/ims/warehouses/keyword-search?keyword=Central"
 
-# Buscar um armazém pelo UUID
-curl -X GET "http://localhost:8080/ims/warehouses/id-search?id={uuid}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/warehouses/id-search?id=a43b5-342n-12hgs"
-
-# Atualizar um armazém existente (busca pelo nome)
-curl -X PUT "http://localhost:8080/ims/warehouses/Armazém Central" \
+# Atualizar um armazém existente (Busca pelo nome)
+curl -X PUT "http://localhost:8080/ims/warehouses/Central Warehouse" \
      -H "Content-Type: application/json" \
      -d '{
-           "id": "a43b5-342n-12hgs",
-           "name": "Nome Atualizado do Armazém",
-           "location": "Rua Nova, 456",
-           "capacity": 1200
+           "name": "Central Warehouse",
+           "location": "456 New St, New York",
+           "maxCapacity": 8000
          }'
 
 # Deletar um armazém pelo nome
-curl -X DELETE "http://localhost:8080/ims/warehouses/Armazém Central"
+curl -X DELETE "http://localhost:8080/ims/warehouses/Central Warehouse"
 ```
 
 ### Entradas de Estoque
 
 ```bash
-# Buscar todas as entradas de estoque dentro de um armazém específico
-curl -X GET "http://localhost:8080/ims/stock/warehouse?id={warehouseId}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/stock/warehouse?id=123e4567-e89b-12d3-a456-426614174000"
-
-# Buscar todas as entradas de estoque para um produto específico
-curl -X GET "http://localhost:8080/ims/stock/products?id={productId}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/stock/products?id=123e4567-e89b-12d3-a456-426614174000"
-
-# Buscar uma entrada de estoque para um produto específico em um armazém específico
-curl -X GET "http://localhost:8080/ims/stock/{warehouseId}/{productId}"
-# Exemplo:
-curl -X GET "http://localhost:8080/ims/stock/123e4567-e89b-12d3-a456-426614174000/987e6543-e21b-65d4-a987-426614174999"
-
-# Adicionar uma nova entrada de estoque (requer Produto e Armazém existentes)
+# Adicionar uma nova entrada de estoque (Requer Produto, Armazém e Fornecedor existentes)
 curl -X POST "http://localhost:8080/ims/stock" \
      -H "Content-Type: application/json" \
      -d '{
-           "productId": "123e4567-e89b-12d3-a456-426614174000",
-           "warehouseId": "987e6543-e21b-65d4-a987-426614174999",
+           "productSKU": "SONY-PS5",
+           "warehouseName": "Central Warehouse",
+           "supplierName": "Sony Electronics",
            "quantity": 100
          }'
 
-# Deletar uma entrada de estoque pelo seu ID
-curl -X DELETE "http://localhost:8080/ims/stock/{stockEntryId}"
+# Ajustar a quantidade de estoque (Positivo para aumentar, negativo para diminuir)
+curl -X PATCH "http://localhost:8080/ims/stock" \
+     -H "Content-Type: application/json" \
+     -d '{
+           "productSKU": "SONY-PS5",
+           "warehouseName": "Central Warehouse",
+           "quantityToAdjust": -15
+         }'
 
-# Ajustar a quantidade do estoque pelo stockEntryId (positivo para aumentar, negativo para diminuir)
-curl -X PATCH "http://localhost:8080/ims/stock/{stockEntryId}?quantity={amount}"
-# Exemplo:
-curl -X PATCH "http://localhost:8080/ims/stock/123e4567-e89b-12d3-a456-426614174000?quantity=50"
+# Buscar uma entrada de estoque específica (Pelo Nome do Armazém e SKU do Produto)
+curl -X GET "http://localhost:8080/ims/stock/Central Warehouse/SONY-PS5"
+
+# Buscar todas as entradas de estoque dentro de um armazém específico
+curl -X GET "http://localhost:8080/ims/stock/warehouse?name=Central Warehouse"
+
+# Buscar todas as entradas de estoque em todos os armazéns para um produto específico
+curl -X GET "http://localhost:8080/ims/stock/products?sku=SONY-PS5"
+
+# Deletar uma entrada de estoque
+curl -X DELETE "http://localhost:8080/ims/stock/Central Warehouse/SONY-PS5"
 ```
 
 ## Contribuições
