@@ -1,6 +1,7 @@
 package io.github.giovberlato.inventory_management_system.repository;
 
 import io.github.giovberlato.inventory_management_system.model.Warehouse;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.repository.ListCrudRepository;
 
 import java.util.List;
@@ -13,5 +14,6 @@ public interface WarehouseRepository extends ListCrudRepository<Warehouse, UUID>
 
     Optional<Warehouse> findByLocationIgnoreCase(String location);
 
+    @EntityGraph(attributePaths = {"stockEntries"})
     List<Warehouse> findAllByNameContains(String text);
 }

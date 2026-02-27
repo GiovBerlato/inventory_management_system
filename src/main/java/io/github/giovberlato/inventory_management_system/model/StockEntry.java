@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
-@Table(name = "StockEntries")
+@Table(name = "stock_entries")
 public class StockEntry {
         @Id
         @GeneratedValue
@@ -30,4 +30,12 @@ public class StockEntry {
         @NotNull
         @Min(0)
         private Integer quantity;
+
+
+
+        public StockEntry(Product product, Warehouse warehouse, Integer quantity) {
+                this.product = product;
+                this.warehouse = warehouse;
+                this.quantity = quantity;
+        }
 }

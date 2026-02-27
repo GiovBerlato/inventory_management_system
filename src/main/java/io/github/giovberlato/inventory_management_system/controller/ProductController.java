@@ -1,7 +1,8 @@
 package io.github.giovberlato.inventory_management_system.controller;
 
-import io.github.giovberlato.inventory_management_system.model.product.Product;
-
+import io.github.giovberlato.inventory_management_system.contract.ProductRequestDTO;
+import io.github.giovberlato.inventory_management_system.contract.ProductResponseDTO;
+import io.github.giovberlato.inventory_management_system.model.product.*;
 import io.github.giovberlato.inventory_management_system.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -22,38 +23,38 @@ public class ProductController {
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("")
-    public List<Product> listAll() {
+    public List<ProductResponseDTO> listAll() {
         return productService.listAll();
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/filter/{type}")
-    public List<Product> listAllByType(@NotNull @PathVariable Type type) {
+    public List<ProductResponseDTO> listAllByType(@NotNull @PathVariable ProductType type) {
         return productService.listAllByType(type);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/keyword-search") // example usage: "/keyword-search?keyword=fork"
-    public List<Product> searchAllByNameContaining(@RequestParam String keyword) {
+    public List<ProductResponseDTO> searchAllByNameContaining(@RequestParam String keyword) {
         return productService.searchAllByNameContaining(keyword);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/sku-search") // example usage: "/sku-search?sku=ABC-123"
-    public Product searchProductBySku(@RequestParam String sku) {
+    public ProductResponseDTO searchProductBySku(@RequestParam String sku) {
         return productService.searchBySku(sku);
     }
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
-    public Product addProduct(@Valid @RequestBody Product product) {
+    public ProductResponseDTO addProduct(@Valid @RequestBody ProductRequestDTO product) {
         return productService.addProduct(product);
     }
 
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{sku}")
-    public Product updateProduct(@Valid @RequestBody Product product, @PathVariable String sku) {
-        return productService.updateProduct(product, sku);
+    public void updateProduct(@Valid @RequestBody ProductRequestDTO product, @PathVariable String sku) {
+        productService.updateProduct(product, sku);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)

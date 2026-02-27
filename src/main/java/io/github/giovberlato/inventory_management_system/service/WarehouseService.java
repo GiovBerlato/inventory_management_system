@@ -1,10 +1,13 @@
 package io.github.giovberlato.inventory_management_system.service;
 
+import io.github.giovberlato.inventory_management_system.contract.WarehouseRequestDTO;
+import io.github.giovberlato.inventory_management_system.contract.WarehouseResponseDTO;
 import io.github.giovberlato.inventory_management_system.exception.DuplicateWarehouseException;
 import io.github.giovberlato.inventory_management_system.exception.WarehouseNotFoundException;
 import io.github.giovberlato.inventory_management_system.model.Warehouse;
 import io.github.giovberlato.inventory_management_system.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -17,56 +20,63 @@ public class WarehouseService {
         this.repository = repository;
     }
 
-    public List<Warehouse> listAll() {
-        return repository.findAll();
+    public List<WarehouseResponseDTO> listAll() {
+        return repository.findAll()
+                .stream()
+                .map(WarehouseResponseDTO::new)
+                .toList();
     }
 
-    public Warehouse searchByName(String name) {
-        if (name != null) {
-            return repository.findByNameIgnoreCase(name)
-                    .orElseThrow(() -> new WarehouseNotFoundException("No warehouse with this name was found."));
+    public WarehouseResponseDTO searchByName(String name) {
+        if (!name.isBlank()) {
+            return new WarehouseResponseDTO(repository.findByNameIgnoreCase(name)
+                    .orElseThrow(() -> new WarehouseNotFoundException("No warehouse with this name was found.")));
         }
         throw new IllegalArgumentException("You must provide a name for search.");
     }
 
-    public List<Warehouse> searchAllByNameContaining(String keyword) {
-        if (keyword != null) {
-            List<Warehouse> warehousesFound = repository.findAllByNameContains(keyword);
-            if (warehousesFound.isEmpty()) {
-                throw new WarehouseNotFoundException("No warehouses were found.");
-            }
-            return warehousesFound;
+    public List<WarehouseResponseDTO> searchAllByNameContaining(String keyword) {
+        if (!keyword.isBlank()) {
+            return repository.findAllByNameContains(keyword)
+                    .stream()
+                    .map(WarehouseResponseDTO::new)
+                    .toList();
         }
         throw new IllegalArgumentException("You must provide a keyword for search.");
     }
 
-    public Warehouse searchById(UUID id) {
-        if (id != null) {
-            return repository.findById(id)
-                    .orElseThrow(() -> new WarehouseNotFoundException("No warehouse with this ID was found."));
-        }
-        throw new IllegalArgumentException("You must provide an ID for search.");
-    }
-
-    public Warehouse addWarehouse(Warehouse warehouse) {
-        if (repository.findByNameIgnoreCase(warehouse.getName()).isPresent()) {
+    @Transactional
+    public WarehouseResponseDTO addWarehouse(WarehouseRequestDTO request) {
+        if (repository.findByNameIgnoreCase(request.getName()).isPresent()) {
             throw new DuplicateWarehouseException("There is already a warehouse with this name.");
         }
-        if (repository.findByLocationIgnoreCase(warehouse.getLocation()).isPresent()) {
+        if (repository.findByLocationIgnoreCase(request.getLocation()).isPresent()) {
             throw new DuplicateWarehouseException("There is already a warehouse with this address.");
         }
-        return repository.save(warehouse);
+        Warehouse warehouse = new Warehouse();
+        warehouse.setName(request.getName());
+        warehouse.setLocation(request.getLocation());
+        warehouse.setMaxCapacity(request.getMaxCapacity());
+        warehouse.setCurrentQuantity(0);
+
+        Warehouse savedWarehouse = repository.save(warehouse);
+        return new WarehouseResponseDTO(savedWarehouse);
     }
 
-    public Warehouse updateWarehouse(Warehouse updatedWarehouse, String name) {
+    @Transactional
+    public WarehouseResponseDTO updateWarehouse(WarehouseRequestDTO updatedWarehouse, String name) {
         Warehouse warehouseToUpdate = repository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new WarehouseNotFoundException("The warehouse you are attempting to update does not exist."));
+
         warehouseToUpdate.setName(updatedWarehouse.getName());
         warehouseToUpdate.setLocation(updatedWarehouse.getLocation());
         warehouseToUpdate.setMaxCapacity(updatedWarehouse.getMaxCapacity());
-        return repository.save(warehouseToUpdate);
+
+        Warehouse savedWarehouse = repository.save(warehouseToUpdate);
+        return new WarehouseResponseDTO(savedWarehouse);
     }
 
+    @Transactional
     public void deleteWarehouse(String name) {
         Warehouse warehouseToDelete = repository.findByNameIgnoreCase(name)
                 .orElseThrow(() -> new WarehouseNotFoundException("The warehouse you are attempting to delete does not exist."));

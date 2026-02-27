@@ -1,8 +1,8 @@
 package io.github.giovberlato.inventory_management_system.model.product;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.giovberlato.inventory_management_system.model.StockEntry;
 
+import io.github.giovberlato.inventory_management_system.model.Supplier;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -20,7 +20,6 @@ import java.util.UUID;
 @Getter
 @EqualsAndHashCode(exclude = {"id", "stockEntries"})
 @NoArgsConstructor
-@JsonIgnoreProperties({"stockEntries"})
 public class Product {
         @Id
         @GeneratedValue
@@ -34,24 +33,38 @@ public class Product {
         @Column(unique = true)
         private String sku;
         @NotNull
+        @Enumerated(EnumType.STRING)
         private ProductType type;
         @NotNull
         @DecimalMin("0.00")
         private BigDecimal price;
         @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
-        private List<StockEntry> stockEntries;
+        private List<StockEntry> stockEntries = new ArrayList<>();
         @NotNull
         @Min(0)
         @Column(name = "min_stock")
         private Integer minimumStock;
+        @ManyToOne
+        @JoinColumn(name = "supplier_id")
+        @NotNull
+        private Supplier supplier;
 
-        // Constructor used in unit testing
-        public Product(String name, String sku, ProductType type, Integer minimumStock) {
-                this.minimumStock = minimumStock;
-                this.stockEntries = new ArrayList<>();
-                this.price = new BigDecimal("10.89");
+        public Product(String name, String sku, ProductType type, BigDecimal price, Integer minimumStock, Supplier supplier) {
+                this.name = name;
                 this.sku = sku;
                 this.type = type;
-                this.name = name;
+                this.price = price;
+                this.minimumStock = minimumStock;
+                this.supplier = supplier;
+        }
+
+        public void updateSupplier(Supplier newSupplier) {
+                if (this.supplier != null) {
+                        this.supplier.getProducts().remove(this);
+                }
+                this.supplier = newSupplier;
+                if (newSupplier != null) {
+                        newSupplier.getProducts().add(this);
+                }
         }
 }

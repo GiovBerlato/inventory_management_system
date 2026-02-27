@@ -1,7 +1,8 @@
 package io.github.giovberlato.inventory_management_system.service;
 
-import io.github.giovberlato.inventory_management_system.contract.StockEntryPostRequestDTO;
-import io.github.giovberlato.inventory_management_system.contract.StockEntryUpdateResponseDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryAdjustmentDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryRequestDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryResponseDTO;
 import io.github.giovberlato.inventory_management_system.exception.*;
 import io.github.giovberlato.inventory_management_system.model.StockEntry;
 import io.github.giovberlato.inventory_management_system.model.Warehouse;
@@ -10,9 +11,9 @@ import io.github.giovberlato.inventory_management_system.repository.ProductRepos
 import io.github.giovberlato.inventory_management_system.repository.StockEntryRepository;
 import io.github.giovberlato.inventory_management_system.repository.WarehouseRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class StockEntryService {
@@ -26,84 +27,97 @@ public class StockEntryService {
         this.warehouseRepository = warehouseRepository;
     }
 
-    public List<StockEntry> listAllStocksInWarehouse(UUID warehouseId) {
-        List<StockEntry> warehouseStock = stockEntryRepository.findAllByWarehouse_Id(warehouseId);
-        if (warehouseStock.isEmpty()) {
-            throw new StockEntryNotFoundException("This warehouse currently has no items registered in stock.");
+    public List<StockEntryResponseDTO> listAllStocksInWarehouse(String warehouseName) {
+        Warehouse warehouse = warehouseRepository.findByNameIgnoreCase(warehouseName)
+                .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
+        List<StockEntry> warehouseStock = stockEntryRepository.findAllByWarehouse(warehouse);
+        return warehouseStock.stream()
+                .map(StockEntryResponseDTO::new)
+                .toList();
+    }
+
+    public List<StockEntryResponseDTO> listAllStocksForProduct(String productSKU) {
+        Product product = productRepository.findBySkuIgnoreCase(productSKU)
+                .orElseThrow(() -> new ProductNotFoundException("Product with this SKU was not found."));
+        List<StockEntry> productEntries = stockEntryRepository.findAllByProduct(product);
+        return productEntries.stream()
+                .map(StockEntryResponseDTO::new)
+                .toList();
+    }
+
+    public StockEntryResponseDTO getStockForProductInWarehouse(String warehouseName, String productSKU) {
+        Product product = productRepository.findBySkuIgnoreCase(productSKU)
+                .orElseThrow(() -> new ProductNotFoundException("Product with this SKU was not found."));
+        Warehouse warehouse = warehouseRepository.findByNameIgnoreCase(warehouseName)
+                .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
+        StockEntry stockEntry = stockEntryRepository.findByProductAndWarehouse(product, warehouse)
+                .orElseThrow(() -> new StockEntryNotFoundException("The stock entry you're attempting to search does not appear to exist, check your warehouse and product info."));
+
+        return new StockEntryResponseDTO(stockEntry);
+    }
+
+    @Transactional
+    public void addStockEntry(StockEntryRequestDTO request) {
+
+        Product product = productRepository.findBySkuIgnoreCase(request.getProductSKU())
+                .orElseThrow(() -> new ProductNotFoundException("Product with this SKU was not found."));
+        Warehouse warehouse = warehouseRepository.findByNameIgnoreCase(request.getWarehouseName())
+                .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
+        if (stockEntryRepository.findByProductAndWarehouse(product, warehouse).isPresent()) {
+            throw new DuplicateStockEntryException("A stock entry for this product already exists in this warehouse.");
         }
-        return warehouseStock;
+        StockEntry newEntry = new StockEntry();
+        newEntry.setProduct(product);
+        newEntry.setWarehouse(warehouse);
+        Integer newStockEntryQty = request.getQuantity();
+        newEntry.setQuantity(newStockEntryQty);
+
+        stockEntryRepository.save(newEntry);
     }
 
-    public List<StockEntry> listAllStocksForProduct(UUID productId) {
-        List<StockEntry> warehouseStock = stockEntryRepository.findAllByProduct_Id(productId);
-        if (warehouseStock.isEmpty()) {
-            throw new StockEntryNotFoundException("This warehouse currently has no items registered in stock.");
-        }
-        return warehouseStock;
-    }
-
-    public StockEntry getStockForProductInWarehouse(UUID warehouseId, UUID productId) {
-        return stockEntryRepository.findByWarehouse_IdAndProduct_Id(warehouseId, productId)
-                .orElseThrow(() -> new StockEntryNotFoundException("The stock entry you're attempting to search does not exist, check your warehouse and product IDs."));
-    }
-
-    public StockEntry addStockEntry(StockEntryPostRequestDTO stockEntryRequest) {
-        Product product = productRepository.findById(stockEntryRequest.getProductId())
-                .orElseThrow(() -> new ProductNotFoundException("No product with this ID was found."));
-        Warehouse warehouse = warehouseRepository.findById(stockEntryRequest.getWarehouseId())
-                .orElseThrow(() -> new WarehouseNotFoundException("No warehouse with this ID was found."));
-        if (stockEntryRepository.findByWarehouse_IdAndProduct_Id(warehouse.getId(), product.getId()).isPresent()) {
-            throw new DuplicateStockEntryException("A stock entry for this product in this warehouse already exists.");
-        }
-        StockEntry newStockEntry = new StockEntry();
-        newStockEntry.setProduct(product);
-        newStockEntry.setWarehouse(warehouse);
-        Integer newStockEntryQty = stockEntryRequest.getQuantity();
-        validateAndUpdateWarehouseQuantity(newStockEntry, newStockEntryQty);
-        newStockEntry.setQuantity(newStockEntryQty);
-
-        return stockEntryRepository.save(newStockEntry);
-    }
-
-    public void deleteStockEntry(UUID id) {
-        StockEntry stockEntryToDelete = stockEntryRepository.findById(id)
+    @Transactional
+    public void deleteStockEntry(String productSKU, String warehouseName) {
+        Product product = productRepository.findBySkuIgnoreCase(productSKU)
+                .orElseThrow(() -> new ProductNotFoundException("Product with this SKU was not found."));
+        Warehouse warehouse = warehouseRepository.findByNameIgnoreCase(warehouseName)
+                .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
+        StockEntry stockEntryToDelete = stockEntryRepository.findByProductAndWarehouse(product, warehouse)
                 .orElseThrow(() -> new StockEntryNotFoundException("The stock entry you're trying to delete does not exist."));
         stockEntryRepository.delete(stockEntryToDelete);
     }
 
-    public StockEntryUpdateResponseDTO adjustStock(UUID id, Integer quantityToAdjust) {
-        StockEntry stockEntry = stockEntryRepository.findById(id)
-                .orElseThrow(() -> new StockEntryNotFoundException("The stock entry you're trying to update does not exist."));
-        StockEntryUpdateResponseDTO response = new StockEntryUpdateResponseDTO("Update Successful", stockEntry); // defaults to normal success message
+    @Transactional
+    public StockEntryResponseDTO adjustStock(StockEntryAdjustmentDTO request) {
+        Product product = productRepository.findBySkuIgnoreCase(request.getProductSKU())
+                .orElseThrow(() -> new ProductNotFoundException("Product with this SKU was not found."));
+        Warehouse warehouse = warehouseRepository.findByNameIgnoreCase(request.getWarehouseName())
+                .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
+        StockEntry stockEntry = stockEntryRepository.findByProductAndWarehouse(product, warehouse)
+                .orElseThrow(() -> new StockEntryNotFoundException("You must create a stock entry for this product on this warehouse before adjusting stock."));
 
-        Integer productMinimumStock = stockEntry.getProduct().getMinimumStock();
-        Integer stockBeforeAdjustment = stockEntry.getQuantity();
-        Integer updatedStock = stockBeforeAdjustment + quantityToAdjust;
+        int currentStock = stockEntry.getQuantity();
+        int qtyToAdjust = request.getQuantityToAdjust();
+        int updatedStock = currentStock + qtyToAdjust;
+
         if (updatedStock < 0) {
-            stockEntry.setQuantity(0);
-        } else {
-            stockEntry.setQuantity(updatedStock);
+            throw new InsufficientStockException(
+                    "Cannot remove " + Math.abs(qtyToAdjust) + "items, this stock entry currently only has " + currentStock + " available.");
         }
-        validateAndUpdateWarehouseQuantity(stockEntry, stockEntry.getQuantity() - stockBeforeAdjustment);
-        if (stockEntry.getQuantity() < productMinimumStock) {
-            // send warning regarding stockEntry's quantity being below the minimum stock set for the product.
-            response.setMessage("Update Successful. (Warning: Stock for this entry is currently below the minimum stock set for the Product.)");
-        }
-        stockEntryRepository.save(stockEntry);
-        return response;
-    }
+        int warehouseCurrentQuantity = warehouse.getCurrentQuantity();
+        int warehouseNewQuantity = warehouseCurrentQuantity + qtyToAdjust;
 
-    private void validateAndUpdateWarehouseQuantity(StockEntry stockEntry, Integer quantityToAdjust) {
-        Integer warehouseCurrentQuantity = stockEntry.getWarehouse().getCurrentQuantity();
-        Integer warehouseMaxCapacity = stockEntry.getWarehouse().getMaxCapacity();
-        Integer updatedQuantity = warehouseCurrentQuantity + quantityToAdjust;
-        if (updatedQuantity > warehouseMaxCapacity) {
-            throw new WarehouseIsFullException("You tried to add " + quantityToAdjust + " units of a product, but this warehouse " +
-                    "only has space for " + (warehouseMaxCapacity - warehouseCurrentQuantity) + " units.");
-        } else if (updatedQuantity < 0) {
-            throw new IllegalArgumentException("You tried to take " + quantityToAdjust + " units of a product, but this warehouse " +
-                    "only has " + warehouseCurrentQuantity + " units.");
+        if (warehouseNewQuantity > warehouse.getMaxCapacity()) {
+            throw new WarehouseIsFullException("Warehouse capacity exceeded.");
         }
-        stockEntry.getWarehouse().setCurrentQuantity(warehouseCurrentQuantity + quantityToAdjust);
+
+        stockEntry.setQuantity(updatedStock);
+        warehouse.setCurrentQuantity(warehouseNewQuantity);
+
+        String message = "Update Successful.";
+        if (updatedStock < product.getMinimumStock()) {
+            message = "Update Successful. (WARNING: Stock below specified minimum threshold.)";
+        }
+
+        return new StockEntryResponseDTO(message, product, warehouse, updatedStock);
     }
 }
