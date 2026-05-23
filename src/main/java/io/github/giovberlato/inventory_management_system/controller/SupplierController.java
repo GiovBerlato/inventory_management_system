@@ -5,7 +5,6 @@ import io.github.giovberlato.inventory_management_system.contract.SupplierReques
 import io.github.giovberlato.inventory_management_system.contract.SupplierResponseDTO;
 import io.github.giovberlato.inventory_management_system.service.SupplierService;
 import jakarta.validation.Valid;
-import org.springframework.boot.autoconfigure.graphql.GraphQlProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
