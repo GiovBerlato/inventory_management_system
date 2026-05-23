@@ -2,6 +2,7 @@ HELP.md
 target/
 !**/src/main/**/target/
 !**/src/test/**/target/
+postgres_db_data/
 
 ### STS ###
 .apt_generated
