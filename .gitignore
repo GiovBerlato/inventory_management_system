@@ -3,7 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 postgres_db_data/
-src/main/resources/certs/*.pem
+src/main/resources/certs/private.pem
 
 ### STS ###
 .apt_generated

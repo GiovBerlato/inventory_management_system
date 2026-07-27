@@ -24,6 +24,7 @@ public class Supplier {
     @Setter(AccessLevel.NONE)
     private UUID id;
     @NotBlank
+    @Column(unique = true)
     private String name;
     @NotBlank
     private String address;

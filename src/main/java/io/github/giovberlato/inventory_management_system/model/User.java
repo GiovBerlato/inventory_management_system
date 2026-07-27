@@ -19,6 +19,7 @@ public class User {
     @GeneratedValue
     private UUID id;
     @NotNull
+    @Column(unique = true, nullable = false)
     private String username;
     @NotNull
     private String password;

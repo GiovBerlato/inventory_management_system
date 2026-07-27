@@ -4,6 +4,7 @@ import io.github.giovberlato.inventory_management_system.model.product.ProductTy
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ProductRequestDTO {
 
     @NotBlank(message = "Name cannot be empty")

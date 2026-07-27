@@ -7,6 +7,7 @@ import io.github.giovberlato.inventory_management_system.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.Type;
@@ -47,17 +48,20 @@ public class ProductController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public ProductResponseDTO addProduct(@Valid @RequestBody ProductRequestDTO product) {
         return productService.addProduct(product);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{sku}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void updateProduct(@Valid @RequestBody ProductRequestDTO product, @PathVariable String sku) {
         productService.updateProduct(product, sku);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{sku}")
     public void deleteProduct(@Valid @PathVariable String sku) {
         productService.deleteProduct(sku);

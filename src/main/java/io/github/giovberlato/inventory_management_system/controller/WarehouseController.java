@@ -6,6 +6,7 @@ import io.github.giovberlato.inventory_management_system.model.Warehouse;
 import io.github.giovberlato.inventory_management_system.service.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,18 +41,21 @@ public class WarehouseController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public WarehouseResponseDTO addWarehouse(@Valid @RequestBody WarehouseRequestDTO warehouse) {
         return warehouseService.addWarehouse(warehouse);
     }
 
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{name}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public WarehouseResponseDTO updateWarehouse(@Valid @RequestBody WarehouseRequestDTO warehouse, @PathVariable String name) {
         return warehouseService.updateWarehouse(warehouse, name);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{name}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteWarehouse(@Valid @PathVariable String name) {
         warehouseService.deleteWarehouse(name);
     }

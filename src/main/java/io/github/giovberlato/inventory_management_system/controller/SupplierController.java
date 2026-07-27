@@ -6,6 +6,7 @@ import io.github.giovberlato.inventory_management_system.contract.SupplierRespon
 import io.github.giovberlato.inventory_management_system.service.SupplierService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,12 +34,14 @@ public class SupplierController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void addSupplier(@Valid @RequestBody SupplierRequestDTO supplier) {
         supplierService.addSupplier(supplier);
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{name}")
+    @PreAuthorize("hasRole('ADMIN')")
     public void deleteSupplier(@Valid @PathVariable String name) {
         supplierService.deleteSupplier(name);
     }

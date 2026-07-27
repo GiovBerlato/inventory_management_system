@@ -3,14 +3,15 @@ package io.github.giovberlato.inventory_management_system.contract;
 import io.github.giovberlato.inventory_management_system.model.Warehouse;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class WarehouseRequestDTO {
     @NotBlank(message = "Warehouse must have a name")
     private String name;

@@ -23,6 +23,7 @@ public class Warehouse {
         @Setter(AccessLevel.NONE)
         private UUID id;
         @NotBlank
+        @Column(unique = true)
         private String name;
         @NotBlank
         private String location;

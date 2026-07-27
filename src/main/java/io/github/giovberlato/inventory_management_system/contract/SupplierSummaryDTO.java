@@ -3,9 +3,11 @@ package io.github.giovberlato.inventory_management_system.contract;
 import io.github.giovberlato.inventory_management_system.model.Supplier;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
 public class SupplierSummaryDTO {
