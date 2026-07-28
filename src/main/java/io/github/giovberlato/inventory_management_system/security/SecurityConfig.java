@@ -29,6 +29,8 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -56,8 +58,15 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ims/auth/**").permitAll()
+                .requestMatchers("/ims/auth/login", "/ims/auth/register").permitAll()
                 .anyRequest().authenticated())
+                .formLogin(form -> form.disable())
+                .httpBasic(basic -> basic.disable())
+                .exceptionHandling(exceptions -> exceptions
+                    .authenticationEntryPoint((request, response, authException) -> 
+                        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")
+                    )
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(
                     jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
                 ))
