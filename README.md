@@ -31,9 +31,9 @@ You can build and run the program locally using the maven wrapper that is provid
 ./mvnw clean package
 ```
 
-Make sure you have the database up before packaging, then, just run the .jar inside the target folder.
+Make sure you have your PostgreSQL database running before you run the jar file.
 
-Alternatively, you can install Docker (Pre-made Dockerfile and compose.yaml files are also provided with this project), and run the application inside a container, using the compose command on the root folder:
+You can also install Docker (Pre-made Dockerfile and compose.yaml files are also provided with this project) and run the application inside a container, using the compose command on the root folder:
 
 ```bash
 docker compose up --build
