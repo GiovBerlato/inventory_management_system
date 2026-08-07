@@ -7,6 +7,7 @@ import io.github.giovberlato.inventory_management_system.model.StockEntry;
 import io.github.giovberlato.inventory_management_system.service.StockEntryService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,21 +37,24 @@ public class StockEntryController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{warehouseName}/{productSKU}") // get a stock entry for a specific product in a specific warehouse
     public StockEntryResponseDTO getStockForProductInWarehouse(@PathVariable String warehouseName, @PathVariable String productSKU) {
-        return stockEntryService.getStockForProductInWarehouse(warehouseName, productSKU);
+        return stockEntryService.getStockForProductInWarehouse(productSKU, warehouseName);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("") // requires an existing Product and Warehouse
     public void addStockEntry(@Valid @RequestBody StockEntryRequestDTO stockEntryRequest) {
         stockEntryService.addStockEntry(stockEntryRequest);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{warehouseName}/{productSKU}")
     public void deleteStockEntry(@Valid @PathVariable String productSKU, @Valid @PathVariable String warehouseName) {
         stockEntryService.deleteStockEntry(warehouseName, productSKU);
     }
 
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     @ResponseStatus(HttpStatus.OK)
     @PatchMapping("") // adjust the stock quantity, negative integer to decrease, positive to increase.
     public StockEntryResponseDTO adjustStock(@RequestBody StockEntryAdjustmentDTO request) {
