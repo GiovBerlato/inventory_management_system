@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>4.0.6</version>
+		<version>4.1.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github.giovberlato</groupId>
 	<artifactId>inventory-management-system</artifactId>
-	<version>3.0.0</version>
+	<version>3.1.1</version>
 	<name>inventory-management-system</name>
 	<description>Inventory Management System with Spring Boot and PostgreSQL</description>
 	<url/>

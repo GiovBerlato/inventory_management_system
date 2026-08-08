@@ -71,6 +71,12 @@ public class StockEntryService {
         newEntry.setWarehouse(warehouse);
         Integer newStockEntryQty = request.getQuantity();
         newEntry.setQuantity(newStockEntryQty);
+        int warehouseNewQuantity = warehouse.getCurrentQuantity() + newStockEntryQty;
+
+        if (warehouseNewQuantity > warehouse.getMaxCapacity()) {
+            throw new WarehouseIsFullException("Warehouse capacity exceeded.");
+        }
+        warehouse.setCurrentQuantity(warehouseNewQuantity);
 
         stockEntryRepository.save(newEntry);
     }
@@ -83,6 +89,8 @@ public class StockEntryService {
                 .orElseThrow(() -> new WarehouseNotFoundException("Warehouse with this name not found."));
         StockEntry stockEntryToDelete = stockEntryRepository.findByProductAndWarehouse(product, warehouse)
                 .orElseThrow(() -> new StockEntryNotFoundException("The stock entry you're trying to delete does not exist."));
+
+        warehouse.setCurrentQuantity(warehouse.getCurrentQuantity() - stockEntryToDelete.getQuantity());
         stockEntryRepository.delete(stockEntryToDelete);
     }
 

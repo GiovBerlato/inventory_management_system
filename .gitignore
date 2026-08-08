@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 postgres_db_data/
 src/main/resources/certs/private.pem
+todo.txt
 
 ### STS ###
 .apt_generated
