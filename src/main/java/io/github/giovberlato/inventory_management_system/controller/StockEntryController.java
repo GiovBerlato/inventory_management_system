@@ -37,7 +37,7 @@ public class StockEntryController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{warehouseName}/{productSKU}") // get a stock entry for a specific product in a specific warehouse
     public StockEntryResponseDTO getStockForProductInWarehouse(@PathVariable String warehouseName, @PathVariable String productSKU) {
-        return stockEntryService.getStockForProductInWarehouse(productSKU, warehouseName);
+        return stockEntryService.getStockForProductInWarehouse(warehouseName, productSKU);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
@@ -51,7 +51,7 @@ public class StockEntryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{warehouseName}/{productSKU}")
     public void deleteStockEntry(@Valid @PathVariable String productSKU, @Valid @PathVariable String warehouseName) {
-        stockEntryService.deleteStockEntry(warehouseName, productSKU);
+        stockEntryService.deleteStockEntry(productSKU, warehouseName);
     }
 
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")

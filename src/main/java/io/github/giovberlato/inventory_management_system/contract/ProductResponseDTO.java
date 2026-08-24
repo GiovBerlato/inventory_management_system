@@ -2,6 +2,7 @@ package io.github.giovberlato.inventory_management_system.contract;
 
 import io.github.giovberlato.inventory_management_system.model.product.Product;
 import io.github.giovberlato.inventory_management_system.model.product.ProductType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,6 +10,7 @@ import java.math.BigDecimal;
 
 @Getter
 @Setter
+@AllArgsConstructor
 public class ProductResponseDTO {
     private String name;
     private String sku;
