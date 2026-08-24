@@ -109,7 +109,7 @@ public class StockEntryService {
 
         if (updatedStock < 0) {
             throw new InsufficientStockException(
-                    "Cannot remove " + Math.abs(qtyToAdjust) + "items, this stock entry currently only has " + currentStock + " available.");
+                    "Cannot remove " + Math.abs(qtyToAdjust) + "items, this stock entry currently only has " + currentStock + " units available.");
         }
         int warehouseCurrentQuantity = warehouse.getCurrentQuantity();
         int warehouseNewQuantity = warehouseCurrentQuantity + qtyToAdjust;

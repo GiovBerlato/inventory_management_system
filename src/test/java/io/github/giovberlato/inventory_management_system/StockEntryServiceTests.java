@@ -1,6 +1,7 @@
 package io.github.giovberlato.inventory_management_system;
 
 import io.github.giovberlato.inventory_management_system.contract.StockEntryAdjustmentDTO;
+import io.github.giovberlato.inventory_management_system.contract.StockEntryRequestDTO;
 import io.github.giovberlato.inventory_management_system.contract.StockEntryResponseDTO;
 import io.github.giovberlato.inventory_management_system.exception.StockEntryNotFoundException;
 import io.github.giovberlato.inventory_management_system.exception.SupplierNotFoundException;
@@ -61,7 +62,7 @@ public class StockEntryServiceTests {
         Warehouse warehouse = new Warehouse("MockWarehouse", "Example Location, 123", 100000);
         warehouseRepository.save(warehouse);
         StockEntry stockEntry = new StockEntry(product, warehouse, 1000);
-        warehouse.setCurrentQuantity(1000); //have to manually set the quantity since we're not using service method calls
+        warehouse.setCurrentQuantity(1000); //manually setting the quantity since we're not using service method calls
         stockEntryRepository.save(stockEntry);
     }
 
@@ -117,13 +118,43 @@ public class StockEntryServiceTests {
     }
 
     @Test
-    void adjustStock_ShouldBeSuccessful_IfValidQuantity() {
+    void addStockEntry_ShouldIncreaseWarehouseQuantity() {
+        Product newProduct = new Product("New Product", "defg-1234", ProductType.CLOTHING, new BigDecimal(109.99), 500,
+                supplierRepository.findByNameIgnoreCase("MockSupplier").orElseThrow());
+        productRepository.save(newProduct);
+        StockEntryRequestDTO newStockEntry = new StockEntryRequestDTO();
+        stockEntryService.addStockEntry(new StockEntryRequestDTO("defg-1234", "MockWarehouse", "MockSupplier", 500));
+
+        assertEquals(1500,
+                warehouseRepository.findByNameIgnoreCase("MockWarehouse").orElseThrow().getCurrentQuantity());
+    }
+
+    @Test
+    void deleteStockEntry_shouldDecreaseWarehouseCurrentQuantity() {
+        stockEntryService.deleteStockEntry("abcd-1234", "MockWarehouse");
+
+        assertEquals(0,
+                warehouseRepository.findByNameIgnoreCase("MockWarehouse").orElseThrow().getCurrentQuantity());
+    }
+
+    @Test
+    void adjustStockIncrease_ShouldIncreaseWarehouseCurrentQuantity() {
         StockEntryAdjustmentDTO adjustment = new StockEntryAdjustmentDTO("abcd-1234", "mockwarehouse", 100);
 
         StockEntryResponseDTO testAdjustResult = stockEntryService.adjustStock(adjustment);
 
         assertEquals(1100, testAdjustResult.getQuantity());
         assertEquals(1100, testAdjustResult.getWarehouse().getCurrentQuantity());
+    }
+
+    @Test
+    void adjustStockDecrease_ShouldDecreaseWarehouseCurrentQuantity() {
+        StockEntryAdjustmentDTO adjustment = new StockEntryAdjustmentDTO("abcd-1234", "mockwarehouse", -100);
+
+        StockEntryResponseDTO testAdjustResult = stockEntryService.adjustStock(adjustment);
+
+        assertEquals(900, testAdjustResult.getQuantity());
+        assertEquals(900, testAdjustResult.getWarehouse().getCurrentQuantity());
     }
 
     @Test
