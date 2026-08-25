@@ -1,85 +1,177 @@
 package io.github.giovberlato.inventory_management_system.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.ProblemDetail;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // PRODUCT EXCEPTIONS
+    // Product Exceptions
+
     @ExceptionHandler(ProductNotFoundException.class)
-    public ResponseEntity<Object> handleProductNotFoundException(ProductNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    public ProblemDetail handleProductNotFound(
+            ProductNotFoundException ex) {
+
+        return problem(
+                HttpStatus.NOT_FOUND,
+                "Product not found",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(DuplicateProductException.class)
-    public ResponseEntity<Object> handleDuplicateProductException(DuplicateProductException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleDuplicateProduct(
+            DuplicateProductException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Product already exists",
+                ex.getMessage()
+        );
     }
 
-    // WAREHOUSE EXCEPTIONS
+    // Warehouse Exceptions
+
     @ExceptionHandler(WarehouseNotFoundException.class)
-    public ResponseEntity<Object> handleWarehouseNotFoundException(WarehouseNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    public ProblemDetail handleWarehouseNotFound(
+            WarehouseNotFoundException ex) {
+
+        return problem(
+                HttpStatus.NOT_FOUND,
+                "Warehouse not found",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(DuplicateWarehouseException.class)
-    public ResponseEntity<Object> handleDuplicateWarehouseException(DuplicateWarehouseException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleDuplicateWarehouse(
+            DuplicateWarehouseException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Warehouse already exists",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(WarehouseIsFullException.class)
-    public ResponseEntity<Object> handleWarehouseIsFullException(WarehouseIsFullException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleWarehouseIsFull(
+            WarehouseIsFullException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Warehouse capacity exceeded",
+                ex.getMessage()
+        );
     }
 
-    // STOCK ENTRY EXCEPTIONS
+    // Stock Exceptions
+
     @ExceptionHandler(StockEntryNotFoundException.class)
-    public ResponseEntity<Object> handleStockEntryNotFound(StockEntryNotFoundException ex) {
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(ex.getMessage());
+    public ProblemDetail handleStockEntryNotFound(
+            StockEntryNotFoundException ex) {
+
+        return problem(
+                HttpStatus.NOT_FOUND,
+                "Stock entry not found",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(DuplicateStockEntryException.class)
-    public ResponseEntity<Object> handleDuplicateStockEntryException(DuplicateStockEntryException ex) {
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(ex.getMessage());
+    public ProblemDetail handleDuplicateStockEntry(
+            DuplicateStockEntryException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Stock entry already exists",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(InsufficientStockException.class)
-    public ResponseEntity<String> handleInsufficientStockException(InsufficientStockException ex) {
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(ex.getMessage());
+    public ProblemDetail handleInsufficientStock(
+            InsufficientStockException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Insufficient stock",
+                ex.getMessage()
+        );
     }
 
-    // SUPPLIER EXCEPTIONS
+    // Supplier Exceptions
 
     @ExceptionHandler(SupplierNotFoundException.class)
-    public ResponseEntity<Object> handleSupplierNotFoundException(SupplierNotFoundException ex) {
-        return ResponseEntity
-                .status((HttpStatus.NOT_FOUND))
-                .body(ex.getMessage());
+    public ProblemDetail handleSupplierNotFound(
+            SupplierNotFoundException ex) {
+
+        return problem(
+                HttpStatus.NOT_FOUND,
+                "Supplier not found",
+                ex.getMessage()
+        );
     }
 
     @ExceptionHandler(DuplicateSupplierException.class)
-    public ResponseEntity<Object> handleDuplicateSupplierException(DuplicateSupplierException ex) {
-        return ResponseEntity
-                .status((HttpStatus.BAD_REQUEST))
-                .body(ex.getMessage());
+    public ProblemDetail handleDuplicateSupplier(
+            DuplicateSupplierException ex) {
+
+        return problem(
+                HttpStatus.CONFLICT,
+                "Supplier already exists",
+                ex.getMessage()
+        );
+    }
+
+    // Standardize Bean Validation Errors
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ProblemDetail handleValidation(
+            MethodArgumentNotValidException ex) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(
+                        HttpStatus.BAD_REQUEST,
+                        "Request contains invalid fields"
+                );
+
+        problem.setTitle("Validation failed");
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult()
+                .getFieldErrors()
+                .forEach(error ->
+                        errors.put(
+                                error.getField(),
+                                error.getDefaultMessage()
+                        )
+                );
+
+        problem.setProperty("errors", errors);
+
+        return problem;
+    }
+
+    // ProblemDetail helper
+
+    private ProblemDetail problem(
+            HttpStatus status,
+            String title,
+            String detail) {
+
+        ProblemDetail problem =
+                ProblemDetail.forStatusAndDetail(status, detail);
+
+        problem.setTitle(title);
+
+        return problem;
     }
 }
