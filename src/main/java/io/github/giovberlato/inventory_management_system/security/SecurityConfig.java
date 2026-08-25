@@ -58,7 +58,13 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/ims/auth/login", "/ims/auth/register").permitAll()
+                .requestMatchers(
+                        "/ims/auth/login",
+                        "/ims/auth/register",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**")
+                    .permitAll()
                 .anyRequest().authenticated())
                 .formLogin(form -> form.disable())
                 .httpBasic(basic -> basic.disable())
