@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Generate test RSA keys
+        run: |
+          mkdir -p src/test/resources/certs
+
+          openssl genpkey \
+            -algorithm RSA \
+            -out src/test/resources/certs/private.pem \
+            -pkeyopt rsa_keygen_bits:2048
+
+          openssl rsa \
+            -pubout \
+            -in src/test/resources/certs/private.pem \
+            -out src/test/resources/certs/public.pem
+
+      - name: Run tests
+        run: ./mvnw clean verify
