@@ -4,6 +4,7 @@ import io.github.giovberlato.inventory_management_system.contract.ProductRequest
 import io.github.giovberlato.inventory_management_system.contract.ProductResponseDTO;
 import io.github.giovberlato.inventory_management_system.model.product.*;
 import io.github.giovberlato.inventory_management_system.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
@@ -29,6 +30,10 @@ public class ProductController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "Filter products by type",
+            description = "Current available types: FOOD, ELECTRONICS, CLOTHING, OFFICE_SUPPLIES, HOME_GOODS, TOYS, OTHER"
+    )
     @GetMapping("/filter/{type}")
     public List<ProductResponseDTO> listAllByType(@NotNull @PathVariable ProductType type) {
         return productService.listAllByType(type);

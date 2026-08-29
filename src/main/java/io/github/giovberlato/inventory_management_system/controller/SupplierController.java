@@ -4,6 +4,7 @@ import io.github.giovberlato.inventory_management_system.contract.ProductRespons
 import io.github.giovberlato.inventory_management_system.contract.SupplierRequestDTO;
 import io.github.giovberlato.inventory_management_system.contract.SupplierResponseDTO;
 import io.github.giovberlato.inventory_management_system.service.SupplierService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,6 +28,10 @@ public class SupplierController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "List products by supplier",
+            description = "Lists all products under a specific supplier"
+    )
     @GetMapping("/{name}")
     public List<ProductResponseDTO> listAllProductsBySupplier(@Valid @PathVariable String name) {
         return supplierService.listAllProductsBySupplier(name);

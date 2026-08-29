@@ -1,5 +1,6 @@
 package io.github.giovberlato.inventory_management_system.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +38,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(
+            summary = "Log-in",
+            description = "Login with username and password"
+    )
     @ResponseStatus(HttpStatus.OK)
     public TokenResponseDTO auth(@RequestBody @Valid LoginRequestDTO loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -46,6 +51,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(
+            summary = "Register",
+            description = "Register a new user (defaults to ROLE_USER for now)"
+    )
     @ResponseStatus(HttpStatus.CREATED)
     public String register(@RequestBody @Valid RegisterRequestDTO registerRequest) {
         if (userRepository.findByUsername(registerRequest.getUsername()).isPresent()) {
