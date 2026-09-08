@@ -22,6 +22,10 @@ public class SupplierController {
     }
 
     @ResponseStatus(HttpStatus.OK)
+    @Operation(
+            summary = "Find a supplier by name",
+            description = "Returns the supplier details for the exact supplier name provided."
+    )
     @GetMapping("")
     public SupplierResponseDTO findSupplierByName(@Valid @RequestParam String name) {
         return supplierService.findSupplierByName(name);
@@ -29,8 +33,8 @@ public class SupplierController {
 
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "List products by supplier",
-            description = "Lists all products under a specific supplier"
+            summary = "List all products from a supplier",
+            description = "Shows every product supplied by the selected supplier."
     )
     @GetMapping("/{name}")
     public List<ProductResponseDTO> listAllProductsBySupplier(@Valid @PathVariable String name) {
@@ -38,6 +42,10 @@ public class SupplierController {
     }
 
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            summary = "Create a new supplier",
+            description = "Registers a new supplier in the system. This action requires manager or administrator permissions."
+    )
     @PostMapping("")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN')")
     public void addSupplier(@Valid @RequestBody SupplierRequestDTO supplier) {
@@ -45,6 +53,10 @@ public class SupplierController {
     }
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "Delete a supplier",
+            description = "Removes the supplier identified by name from the system. This action is restricted to administrators."
+    )
     @DeleteMapping("/{name}")
     @PreAuthorize("hasRole('ADMIN')")
     public void deleteSupplier(@Valid @PathVariable String name) {

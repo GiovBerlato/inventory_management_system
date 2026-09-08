@@ -39,8 +39,8 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(
-            summary = "Log-in",
-            description = "Login with username and password"
+            summary = "Authenticate user and generate JWT",
+            description = "Validates the username and password. If the credentials are correct, this endpoint returns a JWT token that can be used for authenticated requests."
     )
     @ResponseStatus(HttpStatus.OK)
     public TokenResponseDTO auth(@RequestBody @Valid LoginRequestDTO loginRequest) {
@@ -52,8 +52,8 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(
-            summary = "Register",
-            description = "Register a new user (defaults to ROLE_USER for now)"
+            summary = "Create a new user account",
+            description = "Registers a new user in the system with the default ROLE_USER permission. After registration, use the login endpoint to obtain a JWT token."
     )
     @ResponseStatus(HttpStatus.CREATED)
     public String register(@RequestBody @Valid RegisterRequestDTO registerRequest) {

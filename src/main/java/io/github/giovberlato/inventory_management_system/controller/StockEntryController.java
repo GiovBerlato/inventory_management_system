@@ -25,8 +25,8 @@ public class StockEntryController {
 
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "List stock entries in warehouse",
-            description = "Show all stock entries registered inside a specific warehouse"
+            summary = "List all stock records in a warehouse",
+            description = "Shows every stock quantity record registered for the selected warehouse."
     )
     @GetMapping("/warehouse") // get all stock entries inside a specific warehouse
     public List<StockEntryResponseDTO> listAllStocksInWarehouse(@RequestParam String name) {
@@ -35,8 +35,8 @@ public class StockEntryController {
 
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "List stock entries for product",
-            description = "List all stock entries registered for specific product"
+            summary = "List stock records for a product",
+            description = "Displays all stock entries for a specific product across the warehouses where it is stored."
     )
     @GetMapping("/products") // get all stock entries for a specific product
     public List<StockEntryResponseDTO> listAllStocksForProduct(@RequestParam String sku) {
@@ -45,8 +45,8 @@ public class StockEntryController {
 
     @ResponseStatus(HttpStatus.OK)
     @Operation(
-            summary = "Search specific stock entry",
-            description = "Find a specific stock entry in a warehouse"
+            summary = "Get stock level for a product in a warehouse",
+            description = "Returns the current stock quantity for one product located in one warehouse."
     )
     @GetMapping("/{warehouseName}/{productSKU}") // get a stock entry for a specific product in a specific warehouse
     public StockEntryResponseDTO getStockForProductInWarehouse(@PathVariable String warehouseName, @PathVariable String productSKU) {
@@ -57,7 +57,7 @@ public class StockEntryController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(
             summary = "Create a stock entry",
-            description = "You must create a product and a warehouse before creating a stock entry"
+            description = "Creates a stock record for an existing product in an existing warehouse. Both the product and warehouse must already be registered."
     )
     @PostMapping("") // requires an existing Product and Warehouse
     public void addStockEntry(@Valid @RequestBody StockEntryRequestDTO stockEntryRequest) {
@@ -66,6 +66,10 @@ public class StockEntryController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(
+            summary = "Delete a stock entry",
+            description = "Removes the stock record for a product in a warehouse."
+    )
     @DeleteMapping("/{warehouseName}/{productSKU}")
     public void deleteStockEntry(@Valid @PathVariable String productSKU, @Valid @PathVariable String warehouseName) {
         stockEntryService.deleteStockEntry(productSKU, warehouseName);
@@ -75,11 +79,7 @@ public class StockEntryController {
     @ResponseStatus(HttpStatus.OK)
     @Operation(
             summary = "Adjust stock quantity",
-            description = """
-        Adds or removes stock for a product in a warehouse.
-        The resulting quantity cannot exceed warehouse capacity.
-        Negative results are clamped to zero.
-        """
+            description = "Increases or decreases the stock quantity for a product in a warehouse. Positive values add stock, negative values remove it, and the final result is limited by warehouse capacity."
     )
     @PatchMapping("") // adjust the stock quantity, negative integer to decrease, positive to increase.
     public StockEntryResponseDTO adjustStock(@RequestBody StockEntryAdjustmentDTO request) {
